@@ -2,7 +2,7 @@ package znet
 
 import (
 	"fmt"
-	"github.com/jiangh156/zinx_h/zinx/ziface"
+	"github.com/jiangh156/zinx/ziface"
 	"net"
 )
 
