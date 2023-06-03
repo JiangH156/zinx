@@ -1,8 +1,10 @@
 package znet
 
 import (
+	"errors"
 	"fmt"
 	"github.com/jiangh156/zinx/ziface"
+	"io"
 	"net"
 )
 
@@ -24,16 +26,36 @@ type Connection struct {
 	ExitBuffChan chan bool
 }
 
+// 直接将Message数据发送给远程的TCP客户端
+func (c *Connection) SendMsg(msgId uint32, data []byte) error {
+	if c.isClosed == true {
+		return errors.New("Connection closed when send msg")
+	}
+	//将data封包发送
+	dp := NewDataPack()
+	msg, err := dp.Pack(NewMsgPackage(msgId, data))
+	if err != nil {
+		fmt.Println("Pack error msg id = ", msgId)
+		return errors.New("Pack error msg")
+	}
+	//写回客户端
+	if _, err := c.GetTCPConnection().Write(msg); err != nil {
+		fmt.Println("Write msg id ", msgId, " error ")
+		c.ExitBuffChan <- true
+		return errors.New("conn write error")
+	}
+	return nil
+}
+
 // 初始化连接模块的方法
 func NewConnection(conn *net.TCPConn, connID uint32, router ziface.IRouter) *Connection {
-	c := &Connection{
+	return &Connection{
 		Conn:         conn,
 		ConnId:       connID,
 		isClosed:     false,
 		Router:       router,
 		ExitBuffChan: make(chan bool, 1),
 	}
-	return c
 }
 
 // 连接的读数据业务
@@ -43,18 +65,39 @@ func (c *Connection) StartReader() {
 	defer c.Stop()
 
 	for {
-		// 读取客户端的数据到buf中，最大512字节
-		buf := make([]byte, 512)
-		_, err := c.Conn.Read(buf)
-		if err != nil {
-			fmt.Println("recv buf err", err)
+		//创建拆包解包的对象
+		dp := NewDataPack()
+
+		//读取客户端的Msg Head
+		headData := make([]byte, dp.GetHeadLen())
+		if _, err := io.ReadFull(c.GetTCPConnection(), headData); err != nil {
+			fmt.Println("read msg head error ", err)
 			c.ExitBuffChan <- true
 			continue
 		}
+		//拆包，得到MsgId 和 dataLen --> Msg
+		msg, err := dp.Unpack(headData)
+		if err != nil {
+			fmt.Println("unpack error ", err)
+			c.ExitBuffChan <- true
+			continue
+		}
+		//根据dataLen读取data，放在msg.data中
+		var data []byte //使用预声明方式，可以减少内容
+		if msg.GetDataLen() > 0 {
+			data = make([]byte, msg.GetDataLen())
+			if _, err := io.ReadFull(c.GetTCPConnection(), data); err != nil {
+				fmt.Println("read msg data error ", err)
+				c.ExitBuffChan <- true
+				continue
+			}
+		}
+		msg.SetData(data)
+
 		//得到当前客户端请求的Request数据
 		req := Request{
 			conn: c,
-			data: buf,
+			msg:  msg,
 		}
 		// 从路由Router中找到注册绑定的Conn所对应的Handle
 		go func(request ziface.IRequest) {

@@ -27,14 +27,14 @@ type Server struct {
 func NewServer() ziface.IServer {
 	//1 初始化全局配置文件
 	utils.GlobalObject.Reload()
-	s := &Server{
+	return &Server{
 		Name:      utils.GlobalObject.Name, //全局参数获取
 		IPVersion: "tcp4",
 		IP:        utils.GlobalObject.Host,    //全局参数获取
 		Port:      utils.GlobalObject.TcpPort, //全局参数获取
 		Router:    nil,
 	}
-	return s
+
 }
 
 // 定义当前客户端连接所绑定的handleAPI（目前写死，以后用户自定义）
