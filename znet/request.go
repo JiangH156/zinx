@@ -7,6 +7,8 @@ type Request struct {
 	msg  ziface.IMessage    // 客户端请求的数据
 }
 
+//============== 实现 ziface.IRequest 里的全部接口方法 ========
+
 // 获取消息ID
 func (r *Request) GetMsgId() uint32 {
 	return r.msg.GetMsgId()

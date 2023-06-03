@@ -15,6 +15,8 @@ func NewMsgPackage(id uint32, data []byte) *Message {
 	}
 }
 
+//============== 实现 ziface.IMessage 里的全部接口方法 ========
+
 // 获取消息数据段长度
 func (m *Message) GetDataLen() uint32 {
 	return m.DataLen

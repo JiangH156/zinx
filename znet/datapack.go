@@ -16,6 +16,8 @@ func NewDataPack() *DataPack {
 	return &DataPack{}
 }
 
+//============== 实现 ziface.IDataPack 里的全部接口方法 ========
+
 // 获取包头长度方法
 func (d *DataPack) GetHeadLen() uint32 {
 	// Id uint32(4字节) + DataLen uint32(4字节)
