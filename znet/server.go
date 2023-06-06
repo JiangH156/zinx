@@ -53,6 +53,8 @@ func (s *Server) Start() {
 
 	// 开启一个go去做服务端listen业务
 	go func() {
+		//0 启动worker工作池机制
+		s.msgHandler.StartWorkPool()
 		//1 获取一个TCP的Addr
 		addr, err := net.ResolveTCPAddr(s.IPVersion, fmt.Sprintf("%s:%d", s.IP, s.Port))
 		if err != nil {

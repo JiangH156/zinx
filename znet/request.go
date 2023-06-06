@@ -10,7 +10,7 @@ type Request struct {
 //============== 实现 ziface.IRequest 里的全部接口方法 ========
 
 // 获取消息ID
-func (r *Request) GetMsgId() uint32 {
+func (r *Request) GetMsgID() uint32 {
 	return r.msg.GetMsgId()
 }
 

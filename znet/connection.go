@@ -3,6 +3,7 @@ package znet
 import (
 	"errors"
 	"fmt"
+	"github.com/jiangh156/zinx/utils"
 	"github.com/jiangh156/zinx/ziface"
 	"io"
 	"net"
@@ -122,8 +123,13 @@ func (c *Connection) StartReader() {
 			conn: c,
 			msg:  msg,
 		}
-		//从绑定好的消息和对应的处理方法中执行对应的Handle方法
-		go c.MsgHandler.DoMsgHandler(&req)
+		if utils.GlobalObject.WorkerPoolSize > 0 {
+			//已经开启工作机制，将消息交给Worker处理
+			c.MsgHandler.SendMsgToQueue(&req)
+		} else {
+			//从绑定好的消息和对应的处理方法中执行对应的Handle方法
+			go c.MsgHandler.DoMsgHandler(&req)
+		}
 	}
 }
 
@@ -171,7 +177,7 @@ func (c *Connection) GetTCPConnection() *net.TCPConn {
 }
 
 // 获取当前连接的连接ID
-func (c *Connection) GetConnId() uint32 {
+func (c *Connection) GetConnID() uint32 {
 	return c.ConnId
 }
 
