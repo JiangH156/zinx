@@ -19,9 +19,11 @@ type IConnection interface {
 	//  获取远程客户端的TCP状态TP Port
 	RemoteAddr() net.Addr
 
-	//直接将Message数据发送给远程的TCP客户端
+	//直接将Message数据发送给远程的TCP客户端(无缓冲)
 	SendMsg(msgId uint32, data []byte) error
+
+	//直接将Message数据发送给远程的TCP客户端(有缓冲)
+	SendBuffMsg(msgId uint32, data []byte) error
 }
 
-// HandleFunc 定义一个处理连接业务的方法
 type HandleFunc func(*net.TCPConn, []byte, int) error
