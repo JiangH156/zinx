@@ -24,6 +24,13 @@ type IConnection interface {
 
 	//直接将Message数据发送给远程的TCP客户端(有缓冲)
 	SendBuffMsg(msgId uint32, data []byte) error
+
+	//设置连接属性
+	SetProperty(key string, value any)
+	//获取连接属性
+	GetProperty(key string) (any, error)
+	//移除连接属性
+	RemoveProperty(key string)
 }
 
 type HandleFunc func(*net.TCPConn, []byte, int) error

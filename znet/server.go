@@ -67,9 +67,9 @@ func (s *Server) CallOnConnStart(conn ziface.IConnection) {
 
 // 调用连接OnConnStop Hook函数
 func (s *Server) CallOnConnStop(conn ziface.IConnection) {
-	if s.onConnStart != nil {
+	if s.onConnStop != nil {
 		fmt.Println("----> CallOnConnStop...")
-		s.onConnStart(conn)
+		s.onConnStop(conn)
 	}
 }
 
