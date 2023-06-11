@@ -65,7 +65,7 @@ func (m *MsgHandle) SendMsgToQueue(request ziface.IRequest) {
 func (m *MsgHandle) DoMsgHandler(request ziface.IRequest) {
 	handler, ok := m.Apis[request.GetMsgID()]
 	if !ok {
-		fmt.Println("api msgId = ", request.GetMsgID())
+		fmt.Println("api msgId = ", request.GetMsgID(), " is NOT FOUND! Need Register!")
 		return
 	}
 	//执行对应的处理方法
